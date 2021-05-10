@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"/>
+    <title>Mc Server Info</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card">
+                    <div class="card-body">
+                        <label><b>EN:</b> ENTER IP OR DOMAIN NAME</label><br>
+                        <label><b>TR:</b> IP YADA ALAN ADI GİRİNİZ</label>
+                        <input type="text" class="form-control w-100 e_server_ip" placeholder="Sunucu İp adresi yada domain giriniz" value="play.cubecraft.net">
+                        <button onclick="get_server()" class="btn btn-success w-100 mt-2">EN: Get Server Information <BR>  TR: Sunucu Bilgilerini Getir </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Key</th> 
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td> Online Players (Aktif Oyuncu)</td>
+                                    <td class="e_online_player"> ... </td>
+                                </tr>
+
+                                <tr>
+                                    <td> Server Host</td>
+                                    <td class="e_server_host"> ... </td>
+                                </tr>
+
+                                <tr>
+                                    <td> Icon (Sunucu Resmi)</td>
+                                    <td> <img class="e_icon" style="width: 64px;" src="" alt="Resim bulunamadı"> </td>
+                                </tr>
+
+                                <tr>
+                                    <td> Version </td>
+                                    <td class="e_version"> ... </td>
+                                </tr>
+
+                                <tr style="background: #333;text-align: center;" >
+                                    <td colspan="2" class="e_motd"> ... </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+function get_server() {
+    let server_ip = $(".e_server_ip").val(); // classı e_server_ip olan inputdan sunucu adresini çekiyoruz
+    let api_url = "https://api.mcsrvstat.us/2/"; //api url adresi
+    let message_loading = "Yükleniyor...";
+    let message_error = "Suncuya Ulaşılmadı!";
+    //en: Before sending ajax, we set the messages to be uploaded ...
+    //tr: ajax göndermeden önce mesajları yükleniyor diye ayarlıyoruz...
+    $(".e_server_host").html(server_ip);
+    $(".e_online_player").html(message_loading);
+    $(".e_motd").html(message_loading);
+    $(".e_version").html(message_loading);
+    $(".e_icon").attr("src","");
+    //en: send ajax  
+    //tr: ajax gönderiyoruz 
+    $.ajax({
+        url: api_url + server_ip,
+        dataType: "json",
+        success: function (data) {
+            console.log(data);
+            //en: print information if the server is active
+            //tr: sunucu aktif ise bilgilerini yazdırıyor
+            if(data.online){
+                $(".e_online_player").html(data.players.max + " / "+ data.players.online);
+                $(".e_icon").attr("src",data.icon);
+                $(".e_version").html(data.version);
+                $(".e_motd").html(data.motd.html[0] + "<br>" + data.motd.html[1]);
+            }
+            //en: If the server is not active, we print the error message
+            //tr: Sunucu aktif değilse hata mesajını yazdırıyoruz
+            else { 
+                $(".e_online_player").html(message_error);
+                $(".e_motd").html(message_error);
+            }
+        }
+    });
+}
+</script>
+
+</html>
